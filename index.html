@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyCompany - Chamados TI</title>
+    <link rel="icon" type="image/png" href="assets/favicon MyCompany.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="assets/favicon MyCompany.png" alt="MyCompany Logo" class="login-logo">
+                <h1>MyCompany - Chamados TI</h1>
+                <p class="login-tagline">where the extraordinary lives</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required placeholder="nome.sobrenome@example.com" value="ti@MyCompany.com">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="loginPassword" required placeholder="••••••••" value="admin123">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" aria-label="Mostrar senha">
+                            <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-login">Entrar</button>
+                <div id="loginError" class="login-error"></div>
+                <p class="login-help">Caso não tenha uma conta, entre em contato com o T.I para criar uma</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sistema Principal -->
+    <div id="mainSystem" class="main-system" style="display: none;">
+        <div class="container">
+            <header>
+                <div class="header-content">
+                    <div class="header-logo">
+                        <img src="assets/favicon MyCompany.png" alt="MyCompany Logo">
+                        <div>
+                            <h1>MyCompany - Chamados TI</h1>
+                            <p class="header-tagline">where the extraordinary lives</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-new-ticket" onclick="openNewTicketModal()">+ Novo Chamado</button>
+                        <div class="user-menu">
+                            <div class="user-avatar" onclick="toggleUserMenu()">
+                                <span id="userInitials"></span>
+                            </div>
+                            <div class="user-dropdown" id="userDropdown">
+                                <div class="dropdown-header">
+                                    <div class="dropdown-avatar">
+                                        <span id="dropdownInitials"></span>
+                                    </div>
+                                    <div class="dropdown-info">
+                                        <span class="dropdown-name" id="dropdownName"></span>
+                                        <span class="dropdown-email" id="dropdownEmail"></span>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-body">
+                                    <span class="dropdown-role" id="dropdownRole"></span>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-footer">
+                                    <button class="dropdown-option" id="btnCriarUsuario" style="display: none;" onclick="openCreateUserModal()">
+                                        <span>Criar Usuário</span>
+                                    </button>
+                                    <button class="dropdown-option" id="btnImportarUsuarios" style="display: none;" onclick="openImportUsersModal()">
+                                        <span>Importar Usuários</span>
+                                    </button>
+                                    <button class="dropdown-option" onclick="window.location.href='alterar-senha.html'">
+                                        <span>Alterar Senha</span>
+                                    </button>
+                                    <button class="dropdown-logout" onclick="logout()">
+                                        <span>Sair</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard TI -->
+            <div id="tiDashboard" class="ti-dashboard" style="display: none;">
+                <div class="dashboard-cards">
+                    <div class="stat-card stat-total" onclick="showTicketsByStatus('')">
+                        <div class="stat-icon">▦</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Total</span>
+                            <span class="stat-value" id="statTotal">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-open" onclick="showTicketsByStatus('aberto')">
+                        <div class="stat-icon">●</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Abertos</span>
+                            <span class="stat-value" id="statOpen">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-progress" onclick="showTicketsByStatus('em_andamento')">
+                        <div class="stat-icon">◐</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Em Andamento</span>
+                            <span class="stat-value" id="statProgress">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-waiting" onclick="showTicketsByStatus('aguardando')">
+                        <div class="stat-icon">⏸</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Aguardando</span>
+                            <span class="stat-value" id="statWaiting">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-resolved" onclick="showTicketsByStatus('resolvido')">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Resolvidos</span>
+                            <span class="stat-value" id="statResolved">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-canceled" onclick="showTicketsByStatus('cancelado')">
+                        <div class="stat-icon">✕</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Cancelados</span>
+                            <span class="stat-value" id="statCanceled">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" data-view="kanban">
+                    <span class="btn-icon">▦</span> Kanban
+                </button>
+                <button class="toggle-btn" data-view="list">
+                    <span class="btn-icon">☰</span> Lista
+                </button>
+            </div>
+
+            <!-- Visualização Kanban -->
+            <div id="kanbanView" class="kanban-view">
+                <div class="kanban-board">
+                    <div class="kanban-column column-aberto" data-status="aberto">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <div class="status-indicator"></div>
+                                <h3>Abertos</h3>
+                            </div>
+                            <span class="column-count" id="count-aberto">0</span>
+                        </div>
+                        <div class="column-cards" id="cards-aberto"></div>
+                    </div>
+                    <div class="kanban-column column-em-andamento" data-status="em_andamento">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <div class="status-indicator"></div>
+                                <h3>Em Andamento</h3>
+                            </div>
+                            <span class="column-count" id="count-em_andamento">0</span>
+                        </div>
+                        <div class="column-cards" id="cards-em_andamento"></div>
+                    </div>
+                    <div class="kanban-column column-aguardando" data-status="aguardando">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <div class="status-indicator"></div>
+                                <h3>Aguardando</h3>
+                            </div>
+                            <span class="column-count" id="count-aguardando">0</span>
+                        </div>
+                        <div class="column-cards" id="cards-aguardando"></div>
+                    </div>
+                    <div class="kanban-column column-resolvido" data-status="resolvido">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <div class="status-indicator"></div>
+                                <h3>Resolvidos</h3>
+                            </div>
+                            <span class="column-count" id="count-resolvido">0</span>
+                        </div>
+                        <div class="column-cards" id="cards-resolvido"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualização Lista -->
+            <div id="listView" class="list-view" style="display: none;">
+                <div class="filters">
+                    <select id="filterStatus">
+                        <option value="">Todos os Status</option>
+                        <option value="aberto">Abertos</option>
+                        <option value="em_andamento">Em Andamento</option>
+                        <option value="aguardando">Aguardando</option>
+                        <option value="resolvido">Resolvidos</option>
+                        <option value="fechado">Fechados</option>
+                        <option value="cancelado">Cancelados</option>
+                    </select>
+                    <select id="filterCategoria">
+                        <option value="">Todas as Categorias</option>
+                        <option value="hardware">Hardware</option>
+                        <option value="software">Software</option>
+                        <option value="rede">Rede</option>
+                        <option value="email">Email</option>
+                        <option value="sistema">Sistema</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                    <select id="filterPrioridade">
+                        <option value="">Todas as Prioridades</option>
+                        <option value="baixa">Baixa</option>
+                        <option value="media">Média</option>
+                        <option value="alta">Alta</option>
+                        <option value="urgente">Urgente</option>
+                    </select>
+                </div>
+                <div class="tickets-list" id="ticketsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Novo Chamado -->
+    <div id="newTicketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Chamado</h2>
+                <span class="close" onclick="closeNewTicketModal()">&times;</span>
+            </div>
+            <form id="newTicketForm">
+                <div class="form-group">
+                    <label for="titulo">Título *</label>
+                    <input type="text" id="titulo" required placeholder="Descreva o problema resumidamente">
+                </div>
+                <div class="form-group">
+                    <label for="descricao">Descrição *</label>
+                    <textarea id="descricao" rows="4" required placeholder="Descreva o problema em detalhes"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoria *</label>
+                    <select id="categoria" required onchange="toggleNovoColaboradorFields()">
+                        <option value="">Selecione...</option>
+                        <option value="hardware">Hardware</option>
+                        <option value="software">Software</option>
+                        <option value="rede">Rede</option>
+                        <option value="email">Email</option>
+                        <option value="sistema">Sistema</option>
+                        <option value="novo_colaborador">Novo Colaborador</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+
+                <!-- Campos Específicos para Novo Colaborador -->
+                <div id="novoColaboradorFields" style="display: none;">
+                    <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--gray-300);">
+                    <h4 style="margin-bottom: 1rem; color: var(--gray-700); font-size: 0.95rem;">Dados do Colaborador</h4>
+
+                    <div class="form-group">
+                        <label for="colaboradorNome">Nome Completo *</label>
+                        <input type="text" id="colaboradorNome" placeholder="Nome completo do novo colaborador">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="colaboradorDataNascimento">Data de Nascimento *</label>
+                        <input type="date" id="colaboradorDataNascimento">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="colaboradorDataInicio">Data de Início *</label>
+                        <input type="date" id="colaboradorDataInicio">
+                    </div>
+
+                    <h4 style="margin: 1.5rem 0 1rem 0; color: var(--gray-700); font-size: 0.95rem;">Equipamentos Necessários</h4>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="equipCelular">
+                            Celular novo
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="equipNotebook">
+                            Notebook novo
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="equipEmail">
+                            Email corporativo
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="equipDebx">
+                            Acesso DEBX
+                        </label>
+                    </div>
+
+                    <h4 style="margin: 1.5rem 0 1rem 0; color: var(--gray-700); font-size: 0.95rem;">Aplicativos</h4>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="appWhatsapp">
+                            WhatsApp (no celular)
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="appChrome">
+                            Google Chrome (no computador)
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sharepointPastas">Pastas do SharePoint</label>
+                        <textarea id="sharepointPastas" rows="3" placeholder="Liste as pastas do SharePoint que o colaborador precisará acessar (ex: Comercial, Marketing, Financeiro)"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeNewTicketModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Criar Chamado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes -->
+    <div id="ticketDetailModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Detalhes do Chamado #<span id="detailId"></span></h2>
+                <span class="close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div class="ticket-detail">
+                <div class="detail-main">
+                    <h3 id="detailTitulo"></h3>
+                    <div class="detail-badges">
+                        <span class="badge badge-status" id="detailStatus"></span>
+                        <span class="badge badge-prioridade" id="detailPrioridade"></span>
+                        <span class="badge badge-categoria" id="detailCategoria"></span>
+                    </div>
+                    <p id="detailDescricao"></p>
+                    <div class="detail-meta">
+                        <p><strong>Solicitante:</strong> <span id="detailUsuario"></span></p>
+                        <p><strong>Criado em:</strong> <span id="detailCriadoEm"></span></p>
+                        <p><strong>Atualizado em:</strong> <span id="detailAtualizadoEm"></span></p>
+                        <p id="detailAtribuido"></p>
+                    </div>
+
+                    <!-- Ações do TI -->
+                    <div id="tiActions" class="ti-actions" style="display: none;">
+                        <h4>Ações do TI</h4>
+                        <div class="action-group">
+                            <label for="editStatus">Status:</label>
+                            <select id="editStatus">
+                                <option value="aberto">Aberto</option>
+                                <option value="em_andamento">Em Andamento</option>
+                                <option value="aguardando">Aguardando</option>
+                                <option value="resolvido">Resolvido</option>
+                                <option value="fechado">Fechado</option>
+                                <option value="cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="action-group">
+                            <label for="editPrioridade">Prioridade:</label>
+                            <select id="editPrioridade">
+                                <option value="baixa">Baixa</option>
+                                <option value="media">Média</option>
+                                <option value="alta">Alta</option>
+                                <option value="urgente">Urgente</option>
+                            </select>
+                        </div>
+                        <div class="action-group">
+                            <label for="editAtribuido">Atribuir para:</label>
+                            <select id="editAtribuido">
+                                <option value="">Não atribuído</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-primary" onclick="updateTicket()">Salvar Alterações</button>
+                            <button class="btn-danger" onclick="confirmDeleteTicket()">Deletar Chamado</button>
+                        </div>
+                    </div>
+
+                    <!-- Ações do Funcionário -->
+                    <div id="funcionarioActions" class="funcionario-actions" style="display: none;">
+                        <button class="btn-cancel" onclick="openCancelModal()">Cancelar Chamado</button>
+                    </div>
+                </div>
+
+                <!-- Chat de Comentários -->
+                <div class="detail-comments">
+                    <div class="chat-header">
+                        <h4>Comentários</h4>
+                        <span class="chat-count" id="chatCount">0</span>
+                    </div>
+                    <div class="chat-messages" id="commentsList">
+                        <div class="chat-empty">Nenhum comentário ainda</div>
+                    </div>
+                    <form id="commentForm" class="chat-form">
+                        <textarea id="commentText" rows="2" placeholder="Digite sua mensagem..." maxlength="500"></textarea>
+                        <button type="submit" class="chat-send">
+                            <span>→</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Deleção -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Confirmar Deleção</h2>
+                <span class="close" onclick="closeDeleteConfirmModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja deletar este chamado? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeDeleteConfirmModal()">Cancelar</button>
+                <button type="button" class="btn-danger" onclick="deleteTicket()">Deletar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cancelamento -->
+    <div id="cancelTicketModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Cancelar Chamado</h2>
+                <span class="close" onclick="closeCancelModal()">&times;</span>
+            </div>
+            <form id="cancelTicketForm">
+                <div class="modal-body">
+                    <p>Por favor, informe o motivo do cancelamento:</p>
+                    <div class="form-group">
+                        <label for="cancelJustificativa">Justificativa *</label>
+                        <textarea id="cancelJustificativa" rows="4" required placeholder="Descreva o motivo do cancelamento..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeCancelModal()">Voltar</button>
+                    <button type="submit" class="btn-cancel">Cancelar Chamado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Criar Usuário -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Novo Usuário</h2>
+                <span class="close" onclick="closeCreateUserModal()">&times;</span>
+            </div>
+            <form id="createUserForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newUserNome">Nome Completo *</label>
+                        <input type="text" id="newUserNome" required placeholder="Nome completo do usuário">
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserEmail">Email *</label>
+                        <input type="email" id="newUserEmail" required placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserSenha">Senha *</label>
+                        <input type="password" id="newUserSenha" required placeholder="Mínimo 6 caracteres" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserTipo">Tipo de Usuário *</label>
+                        <select id="newUserTipo" required>
+                            <option value="">Selecione...</option>
+                            <option value="funcionario">Funcionário</option>
+                            <option value="ti">Administrador TI</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeCreateUserModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Criar Usuário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Importar Usuários -->
+    <div id="importUsersModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Importar Usuários em Massa</h2>
+                <span class="close" onclick="closeImportUsersModal()">&times;</span>
+            </div>
+            <form id="importUsersForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Instruções:</label>
+                        <div style="background: var(--gray-100); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <p style="margin: 0 0 0.5rem 0; font-size: 0.875rem;">Escolha uma das opções:</p>
+                            <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.875rem;">
+                                <li>Importar arquivo CSV com colunas: <code style="background: var(--white); padding: 0.2rem 0.4rem; border-radius: 3px;">nome,email</code></li>
+                                <li>Ou cole a lista manualmente no formato: <code style="background: var(--white); padding: 0.2rem 0.4rem; border-radius: 3px;">Nome Completo, email@example.com</code></li>
+                            </ul>
+                            <p style="margin: 0.75rem 0 0 0; font-size: 0.75rem; color: var(--gray-600);">
+                                Todos os usuários receberão a senha padrão: <strong>Ramalhos@2025</strong><br>
+                                Um email de boas-vindas será enviado automaticamente.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="csvFile">Importar arquivo CSV (opcional)</label>
+                        <input type="file" id="csvFile" accept=".csv" onchange="handleCSVUpload(event)" style="
+                            display: block;
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 2px dashed var(--gray-300);
+                            border-radius: 8px;
+                            background: var(--gray-50);
+                            cursor: pointer;
+                            font-size: 0.875rem;
+                        ">
+                        <small style="color: var(--gray-600); font-size: 0.75rem;">
+                            Formato esperado: primeira linha com cabeçalho (nome,email), demais linhas com dados
+                        </small>
+                    </div>
+
+                    <div style="text-align: center; margin: 1rem 0; color: var(--gray-500); font-size: 0.875rem;">
+                        - OU -
+                    </div>
+
+                    <div class="form-group">
+                        <label for="usersList">Lista de Usuários (manual)</label>
+                        <textarea id="usersList" rows="10" placeholder="João Silva, joao.silva@example.com&#10;Maria Santos, maria.santos@example.com&#10;Pedro Oliveira, pedro.oliveira@example.com"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="importUserTipo">Tipo de Usuário *</label>
+                        <select id="importUserTipo" required>
+                            <option value="funcionario" selected>Funcionário</option>
+                            <option value="ti">Administrador TI</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeImportUsersModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Importar Usuários</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

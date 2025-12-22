@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alterar Senha - MyCompany Support TI</title>
+    <link rel="icon" type="image/png" href="assets/favicon MyCompany.png">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .change-password-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--MyCompany-blue) 0%, var(--MyCompany-blue-dark) 100%);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background gradient */
+        .change-password-screen::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                circle at 20% 50%,
+                rgba(230, 57, 70, 0.15) 0%,
+                transparent 50%
+            ),
+            radial-gradient(
+                circle at 80% 80%,
+                rgba(30, 58, 95, 0.3) 0%,
+                transparent 50%
+            );
+            animation: rotateBackground 20s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Floating particles */
+        .change-password-screen::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.15), transparent),
+                radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.1), transparent),
+                radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.1), transparent),
+                radial-gradient(1px 1px at 80% 10%, rgba(255, 255, 255, 0.15), transparent),
+                radial-gradient(2px 2px at 90% 60%, rgba(255, 255, 255, 0.1), transparent),
+                radial-gradient(1px 1px at 33% 80%, rgba(255, 255, 255, 0.1), transparent);
+            background-size: 300% 300%;
+            animation: floatingParticles 30s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .change-password-container {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 500px;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .change-password-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .change-password-logo {
+            width: 72px;
+            height: 72px;
+            margin-bottom: 1.5rem;
+        }
+
+        .change-password-header h1 {
+            color: var(--MyCompany-blue);
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .change-password-tagline {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        .step.completed {
+            opacity: 0.7;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            color: var(--gray-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background: var(--MyCompany-blue);
+            color: var(--white);
+            box-shadow: 0 0 0 4px rgba(30, 58, 95, 0.15);
+        }
+
+        .step.completed .step-number {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--gray-300);
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
+            background: var(--white);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--MyCompany-blue);
+            box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.08);
+        }
+
+        .code-input {
+            font-size: 1.5rem !important;
+            letter-spacing: 0.5rem;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--MyCompany-red);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #D62839;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.25);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: var(--gray-400);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0.75rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+        }
+
+        .alert {
+            padding: 0.875rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #D1FAE5;
+            color: var(--success);
+            border-left: 3px solid var(--success);
+        }
+
+        .alert-error {
+            background: #FEE2E2;
+            color: var(--danger);
+            border-left: 3px solid var(--danger);
+        }
+
+        .alert-info {
+            background: #DBEAFE;
+            color: var(--info);
+            border-left: 3px solid var(--info);
+        }
+
+        .help-text {
+            font-size: 0.8125rem;
+            color: var(--gray-600);
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-link a {
+            color: var(--MyCompany-blue);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-link a:hover {
+            color: var(--MyCompany-red);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="change-password-screen">
+        <div class="change-password-container">
+            <div class="change-password-header">
+                <img src="assets/favicon MyCompany.png" alt="MyCompany Logo" class="change-password-logo">
+                <h1>Alterar Senha</h1>
+                <p class="change-password-tagline">where the extraordinary lives</p>
+            </div>
+
+            <!-- Indicador de Etapas -->
+            <div class="step-indicator">
+                <div class="step active" id="stepIndicator1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Verificação</div>
+                </div>
+                <div class="step" id="stepIndicator2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Código</div>
+                </div>
+                <div class="step" id="stepIndicator3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Nova Senha</div>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <!-- Etapa 1: Solicitar código -->
+            <div class="step-content active" id="step1">
+                <p class="help-text" style="margin-bottom: 1.5rem;">
+                    Digite seu email para receber um código de verificação
+                </p>
+                <form id="sendCodeForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required placeholder="nome.sobrenome@example.com">
+                    </div>
+                    <button type="submit" class="btn-primary" id="sendCodeBtn">
+                        Enviar Código
+                    </button>
+                </form>
+            </div>
+
+            <!-- Etapa 2: Validar código -->
+            <div class="step-content" id="step2">
+                <p class="help-text" style="margin-bottom: 1.5rem;">
+                    Digite o código de 6 dígitos enviado para o seu email
+                </p>
+                <form id="verifyCodeForm">
+                    <div class="form-group">
+                        <label for="code">Código de Verificação</label>
+                        <input type="text" id="code" class="code-input" required placeholder="000000" maxlength="6" pattern="[0-9]{6}">
+                    </div>
+                    <button type="submit" class="btn-primary" id="verifyCodeBtn">
+                        Verificar Código
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="goToStep(1)">
+                        Voltar
+                    </button>
+                </form>
+            </div>
+
+            <!-- Etapa 3: Nova senha -->
+            <div class="step-content" id="step3">
+                <p class="help-text" style="margin-bottom: 1.5rem;">
+                    Digite sua nova senha (mínimo 6 caracteres)
+                </p>
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="newPassword">Nova Senha</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="newPassword" required placeholder="••••••••" minlength="6">
+                            <button type="button" class="toggle-password" onclick="togglePassword('newPassword', this)" aria-label="Mostrar senha">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar Nova Senha</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="confirmPassword" required placeholder="••••••••" minlength="6">
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)" aria-label="Mostrar senha">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" id="changePasswordBtn">
+                        Alterar Senha
+                    </button>
+                </form>
+            </div>
+
+            <div class="back-link">
+                <a href="/">← Voltar para o login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <script src="alterar-senha.js"></script>
+</body>
+</html>
